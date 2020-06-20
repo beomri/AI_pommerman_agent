@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/>
+
+    <!-- you may want to add your own keywords here, for search engine optimization -->
+    <meta name="Keywords" content="INTRODUCTION TO ARTIFICIAL INTELLIGENCE, computer science, the hebrew university of jerusalem, project"/ >
+    <link rel="stylesheet" type="text/css" href="http://www.cs.huji.ac.il/~ai/projects/2012/css/default.css" />      <!-- Don't change this line!-->
+    <title>Pommerman</title>
+</head>
+
+<body>
+<div class="main">
+    <div class="gfx">
+        <a href="http://www.cs.huji.ac.il/~ai/projects/" alt="Introduction to Artificial Intelligence The Hebrew University of Jerusalem"></a>  <!-- Don't change this line!-->
+    </div>
+    <div class="title">
+        <h1>Pommerman</h1>
+        <h4>Final project by </h4>
+        <h3>
+            <a href="mailto:Omri.Ben-Dov@mail.huji.ac.il" > Omri Ben-Dov  </a> &nbsp &nbsp
+            <a href="mailto:Meirav.Segal1@mail.huji.ac.il" > Meirav Segal  </a> </br>
+			      <a href="mailto:Gal.Katzhendler@mail.huji.ac.il" > Gal Katzhendler  </a> &nbsp &nbsp
+            <a href="mailto:Varda.Zilberman@mail.huji.ac.il" > Varda Zilberman  </a>
+        </h3>
+    </div>
+   <hr>
+
+    <div class="content">
+    <h2>Introduction</h2>
+    <p>
+    Bomberman is a classic game where 4 players try to bomb each other, where the last player standing is declared winner.
+    </p><p>
+    Pommerman is competition between AI players in a few variations of Bomberman. In the variation we tried to solve, there are rigid walls that can't be destroyed
+    and wooden walls that can be destroyed and might turn into a powerup any player can take. These walls are placed randomly in each game.
+    </p>
+    <p style="text-align:center;">
+    <img src="img/ingame.jpg" alt="ingame picture" width="300">
+    </p>
+    <h2> Approach and Method </h2>
+    <h3> Q-learning </h3>
+    <p>Each turn, the agents recieve a list of parameters that reperesnt the current game state. Then, we can use those parameters to describe a state and as a result
+    we can model the game as a MDP. Therefore, it seemed reasonable to try a Q-learning agent
+    </p><p>
+      We tried a few version of Q-learning:
+      <ul>
+          <li><b>Whole state</b> - we used the full set of parametes sent from the game as a state representation.</li>
+          <li><b>Extracted state</b> - we extracted data from all parameters to get information we think is useful. </li>
+          <li><b>Upper confidence bound (UCB)</b> - the previous agents used &epsilon; -greedy for exploration. UCB chooses actions according to how confident it is about the actions' values.</li>
+          <li><b>Backplay</b> - Each agent gets a reward only at the end of the game. Backplay is a method we used to propagate the rewards faster.</li>
+      </ul>
+    </p>
+    <h3> Random Forest and <a href="https://github.com/HazyResearch/snorkel">Snorkel</a> </h3>
+    <p> Snorkel is a framework that labels unlabeld data using a set of user-made heuristics. We used this framework for 2 different agents:
+      <ul>
+        <li><b>Random Forest</b> - Using Snorkel we could label the states of the game. Using those labels we trained a random forest by playing games with deterministic agents.</li>
+        <li><b>Snorkel Prediction</b> - We used Snorkel in a way that for each action gives the probabily that it's the correct action (label).
+          We then chose the action with the best probability.</li>
+      </ul>
+    </p>
+    <h3>Monte Carlo Tree Search (MCTS)</h3>
+    <p> Monte Carlo Tree Search is a popular tree search method that uses random sampling of branches in the search tree to estimate which child-node
+      is most likely to yield a victory. We use Upper Confidence Bound to balance exploration and exploitation trade-off in the deeper nodes of the tree.</p>
+
+
+	<h2> Results </h2>
+    <p>
+    One of the things we tried is figuring what parameters we should use for Q-learning. We chose one free parameter and set the two others and measured their win ratio (wins divided by games played):
+    </p>
+    <p style="text-align:center;">
+    <img src="img/free_alpha.png" alt="Win ratio as a function of &alpha;">
+    </p>
+    <p>
+    Each line represents a different pair of &epsilon; and &gamma;. We can see that a learning rate of 0.1 has the best chance to win. We chose the discount and epsilon in the same way.
+    </p>
+    <p>
+    After training the Q-learners and other agents, we put them all against the deterministic baseline player provided by the Pommerman team.
+    Those are their winning percantages against it:
+    </p>
+    <p style="text-align:center;">
+    <img src="img/winrate_simple.png" alt="Win ratio against SimpleAgent">
+    </p><p>
+    It is hard to learn about the Q-learning performance, so we've also played all of our agents against each other. Their win ratio shown below:
+    </p><p style="text-align:center;">
+    <img src="img/winrate_heatmap.png" alt="Win ratio against each other">
+    </p><p>
+    We learn 2 intersting things from this table:
+    <li>The backplay Q-learner dominates the other Q-learners</li>
+    <li>The MCTS, Random Forest and Snorkel agents are mostly inactive, unless an enemy gets closer. If it does they become active and play.
+      Otherwise, they stay in place until the game reaches the turn number limit, resulting in a tie.</li>
+    </p>
+
+    <h2>Conclusions</h2>
+    <p>
+    We can see that our Q-learning agents didn't perform well. This is a complex and rich game, and to fully utilize the Q-learning method would require a lot more time and work.
+    This idea is explained further in the report.
+    </p>
+    <p>
+    On the other hand, we have 2 agents that had a much better success rate: the Snorkel agent and the MCTS agent.</br>
+    Although the MCTS agent performed the best, each action takes a long time to compute. Too long for it to play a real game. It might get better time if we had used a neural network.</br>
+    The Snorkel Agent also performed well, and it takes relatively less time to act.
+    </p>
+
+    <h2>Additional Information</h2>
+    <p>
+        <ul>
+            <li><a href="files/report.pdf"> Link to the report (English)</a> </li>
+            <li><a href="https://github.com/beomri/AI_pommerman_agent"> Link to the project's github</a> </li>
+        </ul>
+   </p>
+
+   <h2>References</h2>
+   <p>
+   <ul>
+     <li><a href="https://github.com/MultiAgentLearning/playground">Pommerman github</a></li>
+     <li>Resnick, Cinjon, et al. "Backplay: 'Man muss immer umkehren'." arXiv preprint arXiv:1807.06919 (2018)</li>
+     <li>Ratner, Alexander, et al. "Snorkel: Rapid training data creation with weak supervision." Proceedings of the VLDB Endowment 11.3 (2017): 269-282</li>
+   </ul>
+   </p>
+   </div>
+
+    <!-- *Don't* delete the below code, copyright issues...  -->
+    <div class="footer">
+        <span class="right"><a href="http://templates.arcsin.se/">Website template</a> by <a href="http://arcsin.se/">Arcsin</a>   </span>
+   </div>
+</div>
+</body>
+</html>
